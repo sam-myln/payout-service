@@ -1,0 +1,73 @@
+services:
+  app:
+    build:
+      context: .
+      args:
+        UID: ${UID:-1000}
+        GID: ${GID:-1000}
+    user: "${UID:-1000}:${GID:-1000}"
+    command: php artisan serve --host=0.0.0.0 --port=8000
+    ports:
+      - "8080:8000"
+    volumes:
+      - ".:/app"
+    env_file: .env
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  worker:
+    build:
+      context: .
+      args:
+        UID: ${UID:-1000}
+        GID: ${GID:-1000}
+    user: "${UID:-1000}:${GID:-1000}"
+    command: php artisan queue:work --queue=payouts,webhooks --tries=1 --max-time=3600
+    volumes:
+      - ".:/app"
+    env_file: .env
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: payouts
+      MYSQL_USER: payouts
+      MYSQL_PASSWORD: payouts
+    volumes:
+      - "mysql-data:/var/lib/mysql"
+    configs:
+      - source: mysql_init_test_db
+        target: /docker-entrypoint-initdb.d/01-test-db.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  mysql-data:
+
+configs:
+  mysql_init_test_db:
+    content: |
+      CREATE DATABASE IF NOT EXISTS payouts_test
+        CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+      GRANT ALL ON payouts_test.* TO 'payouts'@'%';
+      FLUSH PRIVILEGES;

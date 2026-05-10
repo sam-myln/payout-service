@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<ruleset name="PayoutService">
+    <rule ref="IxDFCodingStandard"/>
+    <file>app</file>
+    <file>processors</file>
+    <file>processing</file>
+    <file>config</file>
+    <file>database</file>
+    <file>routes</file>
+    <file>tests</file>
+    <exclude-pattern>*/database/migrations/*</exclude-pattern>
+    <exclude-pattern>app/Support/Metrics/RedisCounter.php</exclude-pattern>
+    <exclude-pattern>app/Jobs/SendPayoutToProviderJob.php</exclude-pattern>
+</ruleset>
