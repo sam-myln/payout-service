@@ -12,6 +12,8 @@ services:
     volumes:
       - ".:/app"
     env_file: .env
+    environment:
+      LOG_CHANNEL: app
     depends_on:
       mysql:
         condition: service_healthy
@@ -29,6 +31,8 @@ services:
     volumes:
       - ".:/app"
     env_file: .env
+    environment:
+      LOG_CHANNEL: worker
     depends_on:
       mysql:
         condition: service_healthy

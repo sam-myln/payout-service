@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 use Monolog\Handler\NullHandler;
 use Monolog\Handler\StreamHandler;
@@ -18,7 +20,7 @@ return [
     |
     */
 
-    'default' => env('LOG_CHANNEL', 'stack'),
+    'default' => env('LOG_CHANNEL', 'app'),
 
     /*
     |--------------------------------------------------------------------------
@@ -67,6 +69,32 @@ return [
         'single' => [
             'driver' => 'single',
             'path' => storage_path('logs/laravel.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'replace_placeholders' => true,
+        ],
+
+        'app' => [
+            'driver' => 'single',
+            'path' => storage_path(
+                'logs/'.(match (env('APP_ENV')) {
+                    'prod' => 'prod',
+                    'dev' => 'dev',
+
+                    default => 'single',
+                }).'.log'
+            ),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'replace_placeholders' => true,
+        ],
+        'test' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/test.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'replace_placeholders' => true,
+        ],
+        'worker' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/worker.log'),
             'level' => env('LOG_LEVEL', 'debug'),
             'replace_placeholders' => true,
         ],

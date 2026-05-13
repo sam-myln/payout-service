@@ -18,7 +18,10 @@
         </include>
     </source>
     <php>
-        <env name="APP_ENV" value="testing"/>
+        <env name="APP_ENV" value="test" force="true" />
+        <env name="LOG_CHANNEL" value="test" force="true" />
+        <server name="APP_ENV" value="test" force="true" />
+        <server name="LOG_CHANNEL" value="test" force="true" />
         <env name="APP_MAINTENANCE_DRIVER" value="file"/>
         <env name="BCRYPT_ROUNDS" value="4"/>
         <env name="CACHE_STORE" value="array"/>
