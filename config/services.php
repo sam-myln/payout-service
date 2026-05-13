@@ -35,14 +35,4 @@ return [
         ],
     ],
 
-    'provider' => [
-        'driver' => env('PROVIDER_DRIVER', 'fake'),
-        'base_url' => env('PROVIDER_BASE_URL'),
-        'timeout_connect' => (float) env('PROVIDER_TIMEOUT_CONNECT', 2.0),
-        'timeout_read' => (float) env('PROVIDER_TIMEOUT_READ', 5.0),
-        'webhook_secret' => env('PROVIDER_WEBHOOK_SECRET'),
-        'max_attempts' => (int) env('PROVIDER_MAX_ATTEMPTS', 8),
-        'fake_scenario' => env('PROVIDER_FAKE_SCENARIO', 'success'),
-    ],
-
 ];
