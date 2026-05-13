@@ -15,26 +15,12 @@ use Tests\TestCase;
 
 final class ProviderClientTest extends TestCase
 {
-    private const BASE_URL = 'https://provider.example';
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        Cache::flush();
-
-        config()->set('providers.enabled', ['dummy']);
-        config()->set('providers.dummy', [
-            'base_url' => self::BASE_URL,
-            'webhook_secret' => 'secret',
-        ]);
-    }
-
+    private const string PROVIDER_SLUG = 'dummy';
     private function makeProcessor()
     {
         $registry = $this->app->make(ProcessorRegistryContract::class);
 
-        return $registry->factoryFor('dummy')->makePayment();
+        return $registry->factoryFor(self::PROVIDER_SLUG)->makePayment();
     }
 
     private function command(string $ref): OutboundPaymentCommand

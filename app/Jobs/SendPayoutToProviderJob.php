@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
 namespace App\Jobs;
 
@@ -121,6 +122,7 @@ class SendPayoutToProviderJob implements ShouldQueue
                 ]);
             }
         } catch (Throwable $e) {
+            // TODO fix that, need top level wrapper by type and fallback to passthrought to app handlers..............................
             $payout->incrementAttempts();
 
             $payoutService->markFailed($payout, 'unexpected_error', $e::class.': '.$e->getMessage());

@@ -8,19 +8,22 @@ use App\Domain\Exceptions\ProviderUnavailableException;
 use App\Domain\Exceptions\ProviderValidationException;
 use App\Support\Metrics\RedisCounter;
 use Illuminate\Support\Facades\Http;
+use Processing\Contracts\ProcessorRegistryContract;
 use Processing\OutboundPaymentCommand;
 use Processors\PaymentProviderDummy\PaymentProcessor;
 use Tests\TestCase;
 
 final class HttpProviderClientTest extends TestCase
 {
-    private function makeProcessor(): PaymentProcessor
+
+    private const string PROVIDER_SLUG = 'dummy';
+    private function makeProcessor()
     {
-        return new PaymentProcessor(
-            ['base_url' => 'https://provider.example'],
-            $this->app->make(RedisCounter::class)
-        );
+        $registry = $this->app->make(ProcessorRegistryContract::class);
+
+        return $registry->factoryFor(self::PROVIDER_SLUG)->makePayment();
     }
+
 
     private function validCommand(): OutboundPaymentCommand
     {

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Tests\Feature;
 
@@ -20,8 +22,11 @@ final class PayoutLifecycleTest extends TestCase
 
         config()->set('providers.enabled', ['dummy']);
         config()->set('providers.dummy', [
+            // TODO
             'base_url' => 'http://provider.test',
             'webhook_secret' => $this->secret,
+            'timeout_connect' => 3,
+            'timeout_read' => 3,
         ]);
         config()->set('queue.default', 'database');
         config()->set('cache.default', 'array');
@@ -58,12 +63,14 @@ final class PayoutLifecycleTest extends TestCase
         $this->assertSame(36, strlen($payoutUuid));
 
         $payout = DB::table('payouts')->where('uuid', $payoutUuid)->first();
+
         $this->assertNotNull($payout);
         $this->assertSame('pending', $payout->status);
 
         Artisan::call('queue:work', ['--once' => true, '--queue' => 'payouts']);
 
         $payout = DB::table('payouts')->where('uuid', $payoutUuid)->first();
+
         $this->assertSame('pp-lifecycle-success-001', $payout->provider_payout_id);
         $this->assertSame('processing', $payout->status);
 
@@ -121,7 +128,7 @@ final class PayoutLifecycleTest extends TestCase
         Artisan::call('queue:work', ['--once' => true, '--queue' => 'payouts']);
 
         $payout = DB::table('payouts')->where('uuid', $payoutUuid)->first();
-        $this->assertSame(1, (int) $payout->attempts);
+        $this->assertSame(1, (int)$payout->attempts);
         $this->assertNull($payout->provider_payout_id);
         $this->assertSame('processing', $payout->status);
 

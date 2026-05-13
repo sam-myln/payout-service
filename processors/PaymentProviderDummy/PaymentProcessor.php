@@ -21,8 +21,14 @@ use Processors\PaymentProviderDummy\Api\Responses\PaymentResponse;
 
 final class PaymentProcessor implements PaymentProcessorContract
 {
-    /** @param array{base_url: ?string} $config */
-    public function __construct(private readonly array $config, private readonly RedisCounter $counter)
+
+    private const string DEPOSIT_URL = '/provider/payouts';
+
+    public function __construct(
+        private readonly string $baseUrl,
+        private readonly float $connectTimeout,
+        private readonly float $readTimeout,
+        private readonly RedisCounter $counter)
     {
     }
 
@@ -30,22 +36,18 @@ final class PaymentProcessor implements PaymentProcessorContract
     {
         $request = PaymentRequest::fromCommand($command);
 
-        $baseUrl = $this->config['base_url'];
-        $connectTimeout = 2.0;
-        $readTimeout = 5.0;
-
         try {
-            $response = Http::baseUrl($baseUrl)
-                ->timeout($readTimeout)
-                ->connectTimeout($connectTimeout)
-                ->post('/provider/payouts', $request->toArray());
+            $response = Http::baseUrl($this->baseUrl)
+                ->timeout($this->readTimeout)
+                ->connectTimeout($this->connectTimeout)
+                ->post(self::DEPOSIT_URL, $request->toArray());
         } catch (ConnectionException $e) {
             Log::warning('Provider connection timed out', [
-                'base_url' => $baseUrl,
-                'timeout' => $readTimeout,
+                'base_url' => $this->baseUrl,
+                'timeout' => $this->readTimeout,
             ]);
 
-            throw new ProviderTimeoutException("Provider connection timed out after {$readTimeout}s", previous: $e);
+            throw new ProviderTimeoutException("Provider connection timed out after {$this->readTimeout}s", previous: $e);
         }
 
         return $this->mapResponse($response);

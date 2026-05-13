@@ -18,7 +18,12 @@ final class Factory implements ProcessorFactoryContract
 
     public function makePayment(): PaymentProcessorContract
     {
-        return new PaymentProcessor($this->config, $this->counter);
+        return new PaymentProcessor(
+            $this->config['base_url'],
+            $this->config['timeout_connect'],
+            $this->config['timeout_read'],
+            $this->counter
+        );
     }
 
     public function makeNotification(): NotificationProcessorContract
